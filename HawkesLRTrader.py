@@ -289,15 +289,15 @@ def realistic_backtest(
     metrics,
     min_prob             = 0.6,
     leverage             = 1.0,
-    latency_sec          = 0.05,   # real seconds of latency (was latency_bars)
-    jitter_sec           = 0.01,   # jitter std in real seconds (was jitter_bars)
+    latency_sec          = 0.05,  
+    jitter_sec           = 0.01,   
     jitter_prob          = 0.15,
-    half_spread          = 0.0011, # 0.02 bps — SPY NBBO half-spread
-    slippage_std         = 0.0143, # 0.26 bps — SPY market impact
-    partial_fill_prob    = 0.0,    # SPY too liquid for partial fills
+    half_spread          = 0.0011, 
+    slippage_std         = 0.0143, 
+    partial_fill_prob    = 0.0,  
     partial_fill_min     = 0.5,
     borrow_rate_annual   = 0.03,
-    rejection_prob       = 0.001,  # 0.1% — very rare for SPY
+    rejection_prob       = 0.001, 
     feed_gap_prob        = 0.002,
     feed_gap_bars        = 3,
     commission_per_trade = 0.00,
@@ -649,9 +649,10 @@ def main(csv_path, save_dir, min_prob=0.7, leverage=1):
 
     # Run backtests
     bt_results, rbt_results = run_backtests(model_test.metrics, min_prob=min_prob, leverage=leverage)
-    print("--- Backtests Completed ---")
+    print("Backtests Completed")
     return bt_results, rbt_results
 
 if __name__ == "__main__":
 
     main(csv_path="path/to/your/data.csv", save_dir="path/to/save")
+
