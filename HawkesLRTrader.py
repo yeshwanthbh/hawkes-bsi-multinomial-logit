@@ -610,15 +610,14 @@ def run_backtests(metrics, min_prob=0.7, leverage=1):
     )
     return bt_results, rbt_results
 
-def main():
-    save_dir     = r"C:\QuantV7\SavedData"
+def main(csv_path, save_dir, min_prob=0.7, leverage=1):
     metrics_file = os.path.join(save_dir, "metrics.parquet")
     model_file   = os.path.join(save_dir, "lr_model.joblib")
     scaler_file  = os.path.join(save_dir, "scaler.joblib")
-    csv_path     = r"C:\QuantV7\SPY Data\j1woghljohrbmkdj.csv"
 
     os.makedirs(save_dir, exist_ok=True)
 
+    # Load existing metrics if available
     if os.path.exists(metrics_file):
         metrics    = pd.read_parquet(metrics_file)
         last_stamp = pd.to_datetime(metrics["stamp"]).max()
@@ -628,30 +627,34 @@ def main():
         last_stamp = None
         print("No existing metrics found. Starting fresh.")
 
+    # Load new data
     new_metrics = load_new_data(csv_path, last_stamp=last_stamp, max_chunks=0)
     if not new_metrics.empty:
         print("Computing Hawkes BSI...")
         new_metrics = compute_bsi_for_metrics(new_metrics)
         metrics = pd.concat([metrics, new_metrics], ignore_index=True).drop_duplicates(subset="stamp").reset_index(drop=True)
         metrics.to_parquet(metrics_file)
-        new_data_added = True
         print(f"Updated metrics saved ({len(metrics)} rows).")
     else:
-        new_data_added = False
         print("No new rows to process.")
 
+    # Split into train/test
     split_index       = int(len(metrics) * 0.5)
     train_metrics     = metrics.iloc[:split_index].copy()
     test_metrics_full = metrics.iloc[split_index:].copy()
-    test_metrics      = test_metrics_full.iloc[:1_000_000].copy()  # can adjust size
+    test_metrics      = test_metrics_full.iloc[:1_000_000].copy()  # adjust size if needed
 
-    clf, scaler, _ = get_model(train_metrics, model_file, scaler_file, min_prob=0.7)
+    # Load or train model
+    clf, scaler, _ = get_model(train_metrics, model_file, scaler_file, min_prob=min_prob)
 
+    # Test predictions
     model_test = LogisticRegressionModel(test_metrics, horizon=1, scaler=scaler, fit_scaler=False)
-    model_test.predict(clf, min_prob=0.7)
+    model_test.predict(clf, min_prob=min_prob)
 
-    bt_results, rbt_results = run_backtests(model_test.metrics, min_prob=0.7, leverage=1)
+    # Run backtests
+    bt_results, rbt_results = run_backtests(model_test.metrics, min_prob=min_prob, leverage=leverage)
     print("--- Backtests Completed ---")
+    return bt_results, rbt_results
 
 if __name__ == "__main__":
-    main()
+    main(csv_path="path/to/your/data.csv", save_dir="path/to/save")
