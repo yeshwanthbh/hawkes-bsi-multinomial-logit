@@ -69,7 +69,7 @@ def main(csv_path, save_dir, min_prob=0.7, leverage=1):
     return bt_results, rbt_results, backtest_sharpe, realistic_backtest_sharpe
 
 if __name__ == "__main__":
-    bt_results, rbt_results, backtest_sharpe, realistic_backtest_sharpe = main(csv_path=r"C:\QuantV7\SPY Data\SPY_DATA.csv", save_dir=r"C:\QuantV7\SavedData")
+    bt_results, rbt_results, backtest_sharpe, realistic_backtest_sharpe = main(csv_path="path/to/your/TAQ_DATA.csv", save_dir="path/to/your/SavedData")
 
     print("Backtest Results:")
     print("Total PnL:", bt_results["pnl"].sum())
